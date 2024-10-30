@@ -42,10 +42,13 @@ services:
 
   # Block Explorer for era-test-node-1
   explorer-node1-app:
-    platform: linux/amd64
-    image: "matterlabs/block-explorer-app:latest"
+    build:
+      context: ./block-explorer
+      dockerfile: packages/src/app/Dockerfile
     ports:
       - '3010:3010'
+    volumes:
+      - ./config.js:/usr/src/app/packages/app/dist/config.js
     depends_on:
       - explorer-node1-api
     restart: unless-stopped
@@ -109,18 +112,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=block-explorer-node1
-    networks:
-      - era-network
-
-  # Block Explorer for era-test-node-2
-  explorer-node2-app:
-    platform: linux/amd64
-    image: "matterlabs/block-explorer-app:latest"
-    ports:
-      - '3011:3010'
-    depends_on:
-      - explorer-node2-api
-    restart: unless-stopped
     networks:
       - era-network
 
