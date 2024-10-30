@@ -1,0 +1,6 @@
+[submodule "era-test-node"]
+	path = era-test-node
+	url = git@github.com:koloz193/era-test-node.git
+[submodule "slingshot"]
+	path = slingshot
+	url = git@github.com:koloz193/slingshot.git

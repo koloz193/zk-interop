@@ -1,0 +1,43 @@
+services:
+  era-test-node-1:
+    build:
+      context: ./era-test-node
+      dockerfile: Dockerfile
+      args:
+        CHAIN_ID: 500
+        PORT: 8012
+    ports:
+      - "8012:8012"
+    networks:
+      - era-network
+
+  era-test-node-2:
+    build:
+      context: ./era-test-node
+      dockerfile: Dockerfile
+      args:
+        CHAIN_ID: 501
+        PORT: 8013
+    ports:
+      - "8013:8013"
+    networks:
+      - era-network
+
+  slingshot:
+    build:
+      context: ./slingshot
+      dockerfile: Dockerfile
+      args:
+        PRIV_KEY: "0x509ca2e9e6acf0ba086477910950125e698d4ea70fa6f63e000c5a22bda9361c"
+        INTEROP_ADDR: "0xf3112Bf9e1DE454786477683Ab73AEDB36DeB2c3"
+        CHAIN_1_RPC: "http://host.docker.internal:8012/"
+        CHAIN_2_RPC: "http://host.docker.internal:8013/"
+    networks:
+      - era-network
+    depends_on:
+      - era-test-node-1
+      - era-test-node-2
+
+networks:
+  era-network:
+    driver: bridge
