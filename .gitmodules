@@ -4,3 +4,6 @@
 [submodule "slingshot"]
 	path = slingshot
 	url = git@github.com:koloz193/slingshot.git
+[submodule "block-explorer"]
+	path = block-explorer
+	url = git@github.com:dutterbutter/block-explorer.git
