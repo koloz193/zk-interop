@@ -42,14 +42,15 @@ services:
 
   # Block Explorer for era-test-node-1
   explorer-node1-app:
-    build:
-      context: ./block-explorer
-      dockerfile: packages/app/Dockerfile
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-app:latest"
     ports:
       - '3010:3010'
     depends_on:
       - explorer-node1-api
     restart: unless-stopped
+    volumes:
+      - ./config.external.js:/usr/src/app/packages/app/dist/config.js
     networks:
       - era-network
 
