@@ -1,4 +1,5 @@
 services:
+  # Existing era-test-node services
   era-test-node-1:
     build:
       context: ./era-test-node
@@ -23,6 +24,7 @@ services:
     networks:
       - era-network
 
+  # Existing slingshot service
   slingshot:
     build:
       context: ./slingshot
@@ -37,6 +39,140 @@ services:
     depends_on:
       - era-test-node-1
       - era-test-node-2
+
+  # Block Explorer for era-test-node-1
+  explorer-node1-app:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-app:latest"
+    ports:
+      - '3010:3010'
+    depends_on:
+      - explorer-node1-api
+    restart: unless-stopped
+    volumes:
+      - ./config.external.js:/usr/src/app/packages/app/dist/config.js
+    networks:
+      - era-network
+
+  explorer-node1-worker:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-worker:latest"
+    environment:
+      - PORT=3001
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_HOST=explorer-node1-postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=block-explorer-node1
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:8012
+      - DATA_FETCHER_URL=http://explorer-node1-data-fetcher:3040
+      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
+    restart: unless-stopped
+    networks:
+      - era-network
+
+  explorer-node1-data-fetcher:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-data-fetcher:latest"
+    environment:
+      - PORT=3040
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:8012
+    ports:
+      - '3040:3040'
+    restart: unless-stopped
+    networks:
+      - era-network
+
+  explorer-node1-api:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-api:latest"
+    environment:
+      - PORT=3020
+      - METRICS_PORT=3005
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@explorer-node1-postgres:5432/block-explorer-node1
+    ports:
+      - '3020:3020'
+    depends_on:
+      - explorer-node1-worker
+    restart: unless-stopped
+    networks:
+      - era-network
+
+  explorer-node1-postgres:
+    image: "postgres:14"
+    tmpfs:
+      - /var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=block-explorer-node1
+    networks:
+      - era-network
+
+  explorer-node2-worker:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-worker:latest"
+    environment:
+      - PORT=3002
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_HOST=explorer-node2-postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=block-explorer-node2
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:8013
+      - DATA_FETCHER_URL=http://explorer-node2-data-fetcher:3041
+      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
+    restart: unless-stopped
+    networks:
+      - era-network
+
+  explorer-node2-data-fetcher:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-data-fetcher:latest"
+    environment:
+      - PORT=3041
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:8013
+    ports:
+      - '3041:3041'
+    restart: unless-stopped
+    networks:
+      - era-network
+
+  explorer-node2-api:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-api:latest"
+    environment:
+      - PORT=3021
+      - METRICS_PORT=3006
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@explorer-node2-postgres:5432/block-explorer-node2
+    ports:
+      - '3021:3021'
+    depends_on:
+      - explorer-node2-worker
+    restart: unless-stopped
+    networks:
+      - era-network
+
+  explorer-node2-postgres:
+    image: "postgres:14"
+    tmpfs:
+      - /var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=block-explorer-node2
+    networks:
+      - era-network
 
 networks:
   era-network:
