@@ -44,7 +44,7 @@ services:
       dockerfile: Dockerfile
       args:
         PRIV_KEY: "0x3d3cbc973389cb26f657686445bcc75662b415b656078503592ac8c1abb8810e"
-        INTEROP_ADDR: "0x7122bb051DE72eAD9CE1F6374BEaCBc38E81fdb1"
+        INTEROP_ADDR: "0x767162c75097a97Bd363B7494E6da9D01aeF8A6c"
         CHAIN_1_RPC: "http://host.docker.internal:8012/"
         CHAIN_2_RPC: "http://host.docker.internal:8013/"
     networks:
